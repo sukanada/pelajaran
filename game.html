@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Petualangan Rudi 3D – Perbandingan Berbalik Nilai</title>
+<style>
+:root{--card:#f6faff;--ink:#10263c;--mute:#4d6177;--line:#b7cbe0;--yel:#ffc400;--steel:#2b4a6f;--ok:#1f8a4c;--bad:#c0392b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--card:#14283d;--ink:#eaf1f8;--mute:#9db1c6;--line:#2c4560;--steel:#7fb0e6;--ok:#4cc380;--bad:#ff7b6b}}
+:root[data-theme="dark"]{--card:#14283d;--ink:#eaf1f8;--mute:#9db1c6;--line:#2c4560;--steel:#7fb0e6;--ok:#4cc380;--bad:#ff7b6b}
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden}
+body{font:16px/1.5 "Trebuchet MS","Segoe UI",Verdana,sans-serif;color:var(--ink);background:#8fd3f4}
+#cv{position:fixed;inset:0;cursor:grab;touch-action:none}#cv canvas{display:block}
+#hud{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 10px);display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 14px;font-weight:700}
+#map{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);width:min(300px,52vw);background:var(--card);border:2px solid var(--line);border-radius:14px;padding:4px}
+#map svg{display:block;width:100%}
+#map .n{cursor:pointer}#map text{font:700 9px sans-serif;fill:#fff;pointer-events:none}
+@keyframes pu{50%{r:12}}#map .nx{animation:pu 1.2s infinite}
+#dlg{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);max-width:760px;margin:0 auto;display:flex;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 14px;max-height:48vh;overflow-y:auto}
+#av{flex:none;width:56px;height:56px;border-radius:50%;background:var(--yel);display:grid;place-items:center;font-size:30px;border:3px solid var(--steel)}
+#bd{flex:1;min-width:0}#nm{font-weight:700;color:var(--steel)}#tx p{margin:.2em 0 .4em}#tx small{color:var(--mute)}
+.btn,.opt{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;padding:8px 14px}
+.btn{border:0;background:var(--yel);color:#10263c;margin-top:6px}
+#bt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}#bt .btn{margin:0;grid-column:1/-1;justify-self:start}
+.opt{border:2px solid var(--line);background:transparent;color:var(--ink)}.opt:hover{border-color:var(--steel)}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}.opt.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.ok-t{color:var(--ok);font-weight:700}.bad-t{color:var(--bad);font-weight:700}
+button:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+@media (max-width:560px){#bt{grid-template-columns:1fr}#av{width:42px;height:42px;font-size:22px}}
+</style>
+</head>
+<body>
+<div id="cv"></div>
+<div id="hud"><span class="pill" id="hr"></span><span class="pill" id="st"></span></div>
+<div id="map"><svg id="svg" viewBox="0 0 260 100" aria-label="Peta petualangan"></svg></div>
+<div id="dlg"><div id="av">👷</div><div id="bd"><div id="nm">Rudi si Tukang</div><div id="tx"></div><div id="bt"></div></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),rnd=a=>a[Math.floor(Math.random()*a.length)];
+const NM=["Desa Tukang","Hutan Rusa","Sungai Pompa","Gunung Mendaki","Pelabuhan Kru","Kastil Emas"];
+const P=[[-10,4],[-5,-1],[0,3],[5,-3],[10,2],[14,-4]],SP=[-13,7];
+
+/* ===== Dunia 3D ===== */
+const cv=$("#cv");let R,S,C,W,rudi,flags=[];
+const M=c=>new THREE.MeshLambertMaterial({color:c}),B=(w,h,d)=>new THREE.BoxGeometry(w,h,d),
+ CY=(a,b,h,s)=>new THREE.CylinderGeometry(a,b,h,s||12),CO=(r,h,s)=>new THREE.ConeGeometry(r,h,s||12);
+function mk(g,c,x,y,z,p){const m=new THREE.Mesh(g,M(c));m.position.set(x,y,z);(p||W).add(m);return m}
+function tree(x,z){mk(CY(.15,.2,1),0x7a4a21,x,.5,z);mk(CO(.8,1.8),0x2e9e4f,x,1.7,z)}
+try{
+R=new THREE.WebGLRenderer({antialias:true});R.setClearColor(0x8fd3f4);cv.appendChild(R.domElement);
+S=new THREE.Scene();C=new THREE.PerspectiveCamera(50,1,.1,300);W=new THREE.Group();S.add(W);
+S.add(new THREE.AmbientLight(0xffffff,.8));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(8,14,6);S.add(dl);
+const sea=mk(new THREE.PlaneGeometry(400,400),0x2f9bd6,0,-.9,0);sea.rotation.x=-Math.PI/2;
+mk(B(64,1,40),0x6cc04a,2,-.5,0);
+const pts=[SP,...P];
+for(let i=0;i<pts.length-1;i++){const[a,b]=[pts[i],pts[i+1]],dx=b[0]-a[0],dz=b[1]-a[1],L=Math.hypot(dx,dz);
+ const m=mk(B(L,.08,1.3),0xd9b77a,(a[0]+b[0])/2,.04,(a[1]+b[1])/2);m.rotation.y=-Math.atan2(dz,dx)}
+/* Landmark */
+const [p0,p1,p2,p3,p4,p5]=P;
+[[0,-3],[2.5,-4.5]].forEach(([dx,dz],i)=>{const x=p0[0]+dx,z=p0[1]+dz;mk(B(2,1.4,1.8),i?0xe8b04a:0xd96c4a,x,.7,z);mk(CO(1.6,1,4),0x8a3b2a,x,1.9,z).rotation.y=Math.PI/4});
+[[-2,-3],[1,-4],[-3,2],[2.5,-2.5],[4,-5],[-.5,-6]].forEach(([dx,dz])=>tree(p1[0]+dx,p1[1]+dz));
+mk(B(3,.1,16),0x3aa0e0,p2[0],.03,p2[1]);mk(B(4,.25,2.4),0x8a5a2b,p2[0],.15,p2[1]);
+mk(CO(4.2,6.5,6),0x8c96a3,p3[0]+2,3.2,p3[1]-6);mk(CO(1.4,1.8,6),0xffffff,p3[0]+2,6.3,p3[1]-6);
+mk(B(9,.1,6),0x3aa0e0,p4[0]+3,.03,p4[1]+4.5);mk(B(3,.7,1.2),0x8a5a2b,p4[0]+3,.35,p4[1]+4.5);mk(CY(.07,.07,3),0x555555,p4[0]+3,2,p4[1]+4.5);mk(B(.05,1.6,1.4),0xffffff,p4[0]+3.05,2.2,p4[1]+4.5);
+const kx=p5[0]+2,kz=p5[1]-5;mk(B(4.5,3,4),0xb9bfc9,kx,1.5,kz);mk(B(1.2,1.8,.1),0x5a3a1c,kx,.9,kz+2.05);
+[[-2.3,-2.1],[2.3,-2.1],[-2.3,2.1],[2.3,2.1]].forEach(([dx,dz])=>{mk(CY(.8,.8,5),0xa8aeb9,kx+dx,2.5,kz+dz);mk(CO(1,1.4),0xffc400,kx+dx,5.7,kz+dz)});
+/* Bendera */
+P.forEach(([x,z],i)=>{mk(CY(.05,.05,3),0x444444,x,1.5,z-1);const f=mk(B(1,.6,.05),0xe53935,x+.5,2.7,z-1);flags.push(f)});
+/* Rudi */
+rudi=new THREE.Group();W.add(rudi);
+const part=(g,c,x,y,z,p)=>mk(g,c,x,y,z,p||rudi);
+part(B(.7,.8,.4),0x2b6cb0,0,1.05,0);part(B(.5,.6,.25),0x7a4a21,0,1.1,-.3);
+part(new THREE.SphereGeometry(.33,16,12),0xf1c27d,0,1.68,0);
+part(new THREE.SphereGeometry(.37,16,8,0,Math.PI*2,0,Math.PI/2),0xffc400,0,1.74,0);part(CY(.46,.46,.06,16),0xffc400,0,1.72,.05);
+part(new THREE.SphereGeometry(.04,8,8),0x111111,-.12,1.68,.31);part(new THREE.SphereGeometry(.04,8,8),0x111111,.12,1.68,.31);
+function limb(x,y,w,h,c){const g=new THREE.Group();g.position.set(x,y,0);rudi.add(g);part(B(w,h,w+.04),c,0,-h/2,0,g);return g}
+rudi.lL=limb(-.18,.65,.25,.65,0x34495e);rudi.lR=limb(.18,.65,.25,.65,0x34495e);rudi.aL=limb(-.5,1.4,.2,.6,0x2b6cb0);rudi.aR=limb(.5,1.4,.2,.6,0x2b6cb0);
+}catch(e){cv.innerHTML='<p style="padding:20px;background:#fff;color:#000">Grafik 3D tidak dapat dimuat di perangkat ini.</p>'}
+
+/* ===== Peta mini ===== */
+const sx=x=>(x+14)*9.2,sz=z=>46+z*6,svg=$("#svg");
+function drawMap(){const all=[SP,...P];let h=`<rect width="260" height="100" rx="8" fill="#9fdc84" opacity=".55"/><polyline points="${all.map(p=>sx(p[0])+","+sz(p[1])).join(" ")}" fill="none" stroke="#c49a52" stroke-width="5" stroke-linecap="round"/>`;
+ P.forEach((p,i)=>{const done=i<prog,nx=i===prog;h+=`<g class="n" data-i="${i}"><title>${NM[i]}</title><circle class="${nx?"nx":""}" cx="${sx(p[0])}" cy="${sz(p[1])}" r="9" fill="${done?"#e0a800":nx?"#e53935":"#7a8794"}" stroke="#fff" stroke-width="2"/><text x="${sx(p[0])}" y="${sz(p[1])+3}" text-anchor="middle">${done?"★":i+1}</text></g>`});
+ svg.innerHTML=h+`<circle id="me" r="5" fill="#2b6cb0" stroke="#ffc400" stroke-width="2"/>`;
+ svg.querySelectorAll(".n").forEach(g=>g.onclick=()=>{if(mode==="idle"&&+g.dataset.i===prog)goNext()})}
+
+/* ===== Soal ===== */
+const TH=[
+["Rudi membangun rumah di desa. {a} pekerja menyelesaikannya dalam {d} hari.","Jika pekerjanya {b} orang, berapa hari?","Jika ditambah {t} pekerja, berapa hari?"],
+["Persediaan makanan {a} rusa cukup untuk {d} hari.","Jika rusanya jadi {b} ekor, cukup berapa hari?","Jika datang {t} rusa lagi, cukup berapa hari?"],
+["{a} pompa menguras air kolam dalam {d} jam.","Jika memakai {b} pompa, berapa jam?","Jika ditambah {t} pompa, berapa jam?"],
+["Rudi mendaki dengan kecepatan {a} km/jam dan tiba dalam {d} jam.","Jika kecepatannya {b} km/jam, berapa jam?","Jika kecepatan naik {t} km/jam, berapa jam?"],
+["{a} kru membongkar muatan kapal dalam {d} jam.","Jika kru-nya {b} orang, berapa jam?","Jika ditambah {t} kru, berapa jam?"]];
+function gen(i){const k=rnd(i<2?[12,24]:i<4?[24,36,48]:[48,60,72,120]),dv=[2,3,4,5,6,8,9,10,12,15].filter(x=>k%x==0),add=i>=3&&Math.random()<.6;
+ let a=rnd(dv),b=rnd(dv);while(b==a)b=rnd(dv);if(add&&a>b)[a,b]=[b,a];
+ const th=TH[i<5?i:Math.floor(Math.random()*5)],d=k/a,ans=k/b;
+ const t=(th[0]+" "+(add?th[2]:th[1])).replace("{a}",a).replace("{d}",d).replace("{b}",b).replace("{t}",b-a);
+ const set=new Set([ans]),w=Math.round(d*b/a);if(w>0)set.add(w);[ans+1,ans-1,ans+2,ans*2,d].forEach(v=>{if(v>0&&set.size<4)set.add(v)});let z=3;while(set.size<4)set.add(ans+z++);
+ return{t,ans,k,a,d,opts:[...set].sort(()=>Math.random()-.5)}}
+
+/* ===== Alur game ===== */
+let prog=0,hearts=3,mode="idle",cur=null,got=0,need=1,target=null,pos=[SP[0],SP[1]],walkT=0,winT=0;
+function say(h,btns){$("#tx").innerHTML=h;const bt=$("#bt");bt.innerHTML="";btns.forEach(([l,fn,cls])=>{const b=document.createElement("button");b.className=cls||"btn";b.textContent=l;b.onclick=()=>fn(b);bt.appendChild(b)})}
+function hud(){$("#hr").textContent="❤️".repeat(hearts)||"💔";$("#st").textContent="⭐ "+prog+" / 6";drawMap()}
+function intro(){mode="idle";hud();say(`<p>Halo! Aku <b>Rudi</b>, tukang bangunan pemberani dengan helm kuning. 👷</p><p>Harta ada di <b>Kastil Emas</b>, tapi tiap tempat dijaga soal <b>perbandingan berbalik nilai</b>. Bantu aku menjawabnya ya!</p><small>Seret layar untuk memutar kamera. Klik angka merah di peta untuk berangkat.</small>`,[["Mulai petualangan",goNext]])}
+function goNext(){mode="walk";target=P[prog];say(`<p>Rudi berjalan menuju <b>${NM[prog]}</b>...</p>`,[])}
+function arrive(){mode="quest";got=0;need=prog==5?2:1;ask()}
+function ask(){cur=gen(prog);mode="quest";say(`<small>${NM[prog]} · Soal ${got+1} dari ${need}</small><p>${cur.t}</p>`,cur.opts.map(o=>[o,b=>answer(o,b),"opt"]))}
+function answer(v,b){if(mode!=="quest")return;mode="fb";const ok=v===cur.ans;
+ document.querySelectorAll("#bt .opt").forEach(x=>{if(+x.textContent===cur.ans)x.classList.add("ok")});if(!ok)b.classList.add("bad");
+ const bt=$("#bt");const add=(l,fn)=>{const x=document.createElement("button");x.className="btn";x.textContent=l;x.onclick=fn;bt.appendChild(x)};
+ if(ok){got++;if(got<need){$("#tx").insertAdjacentHTML("beforeend",`<p class="ok-t">Benar! k = ${cur.a} × ${cur.d} = ${cur.k}, lalu ${cur.k} ÷ ${cur.k/cur.ans} = ${cur.ans}.</p>`);add("Soal berikutnya",ask)}
+  else{prog++;flags[prog-1].material.color.set(0xffc400);hud();
+   if(prog>5)win();else{$("#tx").insertAdjacentHTML("beforeend",`<p class="ok-t">Benar! Bendera menjadi emas ⭐ (k = ${cur.k}).</p>`);add("Lanjut ke "+NM[prog],goNext)}}}
+ else{hearts--;hud();const hint=`Ingat: hasil kali tetap. k = ${cur.a} × ${cur.d} = ${cur.k}, jadi jawaban = ${cur.k} ÷ ${cur.k/cur.ans} = ${cur.ans}.`;
+  if(hearts<=0){hearts=3;hud();$("#tx").insertAdjacentHTML("beforeend",`<p class="bad-t">Rudi kelelahan. ${hint}</p><p>Istirahat dulu, nyawa dipulihkan.</p>`)}
+  else $("#tx").insertAdjacentHTML("beforeend",`<p class="bad-t">Belum tepat. ${hint}</p>`);add("Coba soal lain",ask)}}
+function win(){mode="win";say(`<p><b>Selamat!</b> 🎉 Kastil Emas terbuka dan Rudi menemukan hartanya. Kamu mengumpulkan ${prog} bintang.</p>`,[["Main lagi",reset]])}
+function reset(){prog=0;hearts=3;pos=[SP[0],SP[1]];flags.forEach(f=>f.material.color.set(0xe53935));intro()}
+
+/* ===== Loop ===== */
+let camAng=.35,drag=false,px=0,last=performance.now();const cam=new THREE.Vector3(),look=new THREE.Vector3(),reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function resize(){if(!R)return;R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;if(!R)return;
+ let sw=0;
+ if(mode==="walk"){const dx=target[0]-pos[0],dz=target[1]-pos[1],d=Math.hypot(dx,dz),st=Math.min(d,4*dt);if(d>.05){pos[0]+=dx/d*st;pos[1]+=dz/d*st;rudi.rotation.y=Math.atan2(dx,dz);walkT+=dt*10;sw=Math.sin(walkT)*.7}
+  if(d<=.06){arrive()}}
+ rudi.lL.rotation.x=sw;rudi.lR.rotation.x=-sw;rudi.aL.rotation.x=-sw;rudi.aR.rotation.x=sw;
+ winT+=dt;rudi.position.set(pos[0],mode==="win"?Math.abs(Math.sin(winT*5))*.8:Math.abs(sw)*.12,pos[1]);
+ if(mode==="win"&&!reduce)rudi.rotation.y+=dt*3;
+ cam.set(pos[0]+Math.sin(camAng)*11,7.5,pos[1]+Math.cos(camAng)*11);C.position.lerp(cam,.08);look.lerp(new THREE.Vector3(pos[0],1.2,pos[1]),.12);C.lookAt(look);
+ const me=$("#me");if(me){me.setAttribute("cx",sx(pos[0]));me.setAttribute("cy",sz(pos[1]))}
+ R.render(S,C)}
+cv.addEventListener("pointerdown",e=>{drag=true;px=e.clientX;cv.setPointerCapture(e.pointerId)});
+cv.addEventListener("pointermove",e=>{if(drag){camAng-=(e.clientX-px)*.008;px=e.clientX}});
+cv.addEventListener("pointerup",()=>drag=false);addEventListener("resize",resize);
+resize();C&&C.position.set(pos[0],7.5,pos[1]+11);intro();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

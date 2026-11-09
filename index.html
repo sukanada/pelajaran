@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perbandingan Berbalik Nilai</title>
+<style>
+:root{--gold:#e8c46a;--gold2:#b8862b;--mute:#c4b5e0;--line:rgba(232,196,106,.35);--ex:#4a1f6e;--exg:#8a5f12;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{color:#f6f0ff;font:16px/1.5 "Trebuchet MS","Segoe UI",Verdana,sans-serif;background:linear-gradient(135deg,#0a0618,#1a0b3a 50%,#2a0f4d)}
+#app{display:flex;height:100vh;height:100dvh}
+main{flex:1;min-width:0;order:2}
+iframe{display:block;width:100%;height:100%;border:0}
+
+/* Sidebar kiri */
+aside{order:1;width:270px;flex-shrink:0;padding:14px 18px 18px 14px;border-right:1px solid var(--line);background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;transition:width .3s ease;position:relative;z-index:2}
+#tg{align-self:flex-start;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--gold);font-size:1.3rem;cursor:pointer;flex-shrink:0}
+#tg:hover{border-color:var(--gold)}
+#logo{height:120px;flex-shrink:0;pointer-events:none}
+#logo canvas{display:block;width:100%;height:100%}
+aside h1{font:700 1.3rem/1.2 Georgia,serif;margin:0 0 2px;background:linear-gradient(100deg,#fff1c2,#e8c46a 45%,#b8862b);-webkit-background-clip:text;background-clip:text;color:transparent}
+aside p{margin:0 0 10px;color:var(--mute);font-size:.85rem}
+
+/* Menu bergaya 3D (tanpa transform 3D, jadi mudah diklik) */
+nav{display:flex;flex-direction:column;gap:14px;padding:4px 6px 12px 0}
+nav button{
+ display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;font-weight:700;color:#f6f0ff;cursor:pointer;white-space:nowrap;
+ background:linear-gradient(145deg,#6a33a0,#3a1766);border:1px solid var(--line);border-radius:14px;padding:14px 16px;
+ box-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),3px 3px 0 var(--ex),4px 4px 0 var(--ex),5px 5px 0 var(--ex),6px 6px 0 var(--ex),9px 11px 16px rgba(0,0,0,.5);
+ transition:background .2s,box-shadow .2s,margin .2s}
+nav button:hover{border-color:var(--gold);background:linear-gradient(145deg,#7b3fb8,#46207a)}
+nav button:active{margin:3px -3px -3px 3px;box-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),4px 5px 8px rgba(0,0,0,.5)}
+nav button[aria-current=page]{
+ color:#2a0f4d;border-color:transparent;background:linear-gradient(145deg,#fff1c2,#e8c46a,#b8862b);
+ box-shadow:1px 1px 0 var(--exg),2px 2px 0 var(--exg),3px 3px 0 var(--exg),4px 4px 0 var(--exg),5px 5px 0 var(--exg),6px 6px 0 var(--exg),9px 11px 18px rgba(0,0,0,.55)}
+nav button:focus-visible,#tg:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.ic{font-size:1.3rem;flex-shrink:0;pointer-events:none}.lb{pointer-events:none}
+
+/* Sidebar diciutkan: hanya ikon */
+aside.mini{width:84px;padding:14px 10px}
+aside.mini #logo,aside.mini h1,aside.mini p,aside.mini .lb{display:none}
+aside.mini nav button{justify-content:center;padding:14px 10px}
+
+/* Ponsel: sidebar pindah ke bawah */
+@media (max-width:760px){
+ #app{flex-direction:column}
+ main{order:1}
+ aside,aside.mini{order:2;width:100%;border-right:0;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));flex-direction:row;overflow-x:auto}
+ #tg,#logo,aside h1,aside p{display:none}
+ aside.mini .lb{display:inline}
+ nav{flex-direction:row;gap:10px;width:100%;padding:2px 6px 8px 0}
+ nav button,aside.mini nav button{flex:1;min-width:max-content;justify-content:center;padding:10px 12px;font-size:.85rem}
+}
+@media (prefers-reduced-motion:reduce){aside,nav button{transition:none}}
+</style>
+</head>
+<body>
+<div id="app">
+ <aside id="side">
+  <button id="tg" type="button" aria-label="Buka atau tutup sidebar" aria-expanded="true">☰</button>
+  <div id="logo" aria-hidden="true"></div>
+  <h1>Perbandingan Berbalik Nilai</h1>
+  <p>Pilih menu untuk mulai belajar.</p>
+  <nav id="nav"></nav>
+ </aside>
+ <main><iframe id="fr" title="Isi pembelajaran"></iframe></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== Menu ===== */
+var MENU=[["materi","Materi 3D","🧊",4],["contoh","Contoh Soal","📝",3],["latihan","Latihan","✏️",6],["game","Game","🎮",2]];
+var nav=document.getElementById("nav"),fr=document.getElementById("fr"),side=document.getElementById("side");
+
+MENU.forEach(function(m){
+  var b=document.createElement("button");
+  b.type="button";b.dataset.id=m[0];b.title=m[1];
+  b.innerHTML='<span class="ic">'+m[2]+'</span><span class="lb">'+m[1]+'</span>';
+  nav.appendChild(b);
+});
+
+/* Satu pendengar klik untuk semua tombol menu */
+nav.addEventListener("click",function(e){
+  var b=e.target.closest("button[data-id]");
+  if(b)pilihMenu(b.dataset.id);
+});
+
+function pilihMenu(id){
+  fr.src=id+".html";
+  Array.prototype.forEach.call(nav.children,function(b){b.removeAttribute("aria-current")});
+  var aktif=nav.querySelector('[data-id="'+id+'"]');
+  if(aktif)aktif.setAttribute("aria-current","page");
+  try{history.replaceState(null,"","#"+id)}catch(err){}
+  var m=MENU.filter(function(x){return x[0]===id})[0];
+  if(m&&window.buildLogo)buildLogo(m[3]);
+}
+
+/* ===== Tombol buka/tutup sidebar ===== */
+var tg=document.getElementById("tg");
+tg.addEventListener("click",function(){
+  var mini=side.classList.toggle("mini");
+  tg.setAttribute("aria-expanded",String(!mini));
+});
+
+/* ===== Logo 3D: 24 kubus, jumlah kolom mengikuti menu ===== */
+var box=document.getElementById("logo");
+var reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+try{
+  var R=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  box.appendChild(R.domElement);
+  var S=new THREE.Scene(),C=new THREE.PerspectiveCamera(40,1,.1,100);
+  S.add(new THREE.AmbientLight(0xffffff,.75));
+  var dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(5,10,7);S.add(dl);
+  var grp=new THREE.Group();S.add(grp);
+  var g=new THREE.BoxGeometry(.92,.92,.92),e2=new THREE.EdgesGeometry(g),
+    mG=new THREE.MeshLambertMaterial({color:0xe8c46a}),mV=new THREE.MeshLambertMaterial({color:0x8b5cf6}),
+    lm=new THREE.LineBasicMaterial({color:0x1a0b3a});
+  var anim=0,ry=.6;
+  window.buildLogo=function(n){
+    while(grp.children.length)grp.remove(grp.children[0]);
+    var h=24/n,sp=1.15;
+    for(var c=0;c<n;c++)for(var r=0;r<h;r++){
+      var m=new THREE.Mesh(g,c%2?mV:mG);
+      m.position.set((c-(n-1)/2)*sp,r+.5-h/2,0);
+      m.add(new THREE.LineSegments(e2,lm));
+      grp.add(m);
+    }
+    C.position.set(0,0,Math.max(15,n*sp*1.6+5));C.lookAt(0,0,0);anim=1;
+  };
+  var size=function(){
+    var w=box.clientWidth,h=box.clientHeight;
+    if(!w||!h)return;
+    R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(w,h);
+    C.aspect=w/h;C.updateProjectionMatrix();
+  };
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(!reduce)ry+=.01;
+    grp.rotation.set(.3,ry,0);
+    if(anim>0){anim=Math.max(0,anim-.06);var s=1-anim*anim*.5;grp.scale.set(s,s,s)}else grp.scale.set(1,1,1);
+    if(box.clientWidth)R.render(S,C);
+  })();
+  addEventListener("resize",size);size();
+}catch(err){box.style.display="none"}
+
+/* ===== Mulai ===== */
+var awal=location.hash.slice(1);
+pilihMenu(MENU.some(function(m){return m[0]===awal})?awal:"materi");
+</script>
+</body>
+</html>

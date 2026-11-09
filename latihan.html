@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Latihan</title>
+<style>
+:root{--gold:#e8c46a;--gold2:#b8862b;--mute:#c4b5e0;--line:rgba(232,196,106,.35);--ok:#5be08f;--bad:#ff7a8a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;padding:22px;color:#f6f0ff;font:16px/1.6 "Trebuchet MS","Segoe UI",Verdana,sans-serif;background:linear-gradient(135deg,#0a0618,#1a0b3a 50%,#2a0f4d);min-height:100vh}
+h1{font:700 clamp(1.6rem,4.5vw,2.4rem)/1.2 Georgia,serif;margin:0 0 6px;background:linear-gradient(100deg,#fff1c2,#e8c46a 45%,#b8862b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.big{font-size:1.15rem;min-height:3.2em}.mute{color:var(--mute);margin:0}
+.btn,.opt{font:inherit;font-weight:700;cursor:pointer;border-radius:12px;padding:10px 16px}
+.btn{border:0;color:#2a0f4d;background:linear-gradient(135deg,#fff1c2,#e8c46a,#b8862b)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.opt{border:2px solid var(--line);background:rgba(255,255,255,.07);color:#f6f0ff}
+.opt:hover{border-color:var(--gold)}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#06220f}
+.opt.bad{background:var(--bad);border-color:var(--bad);color:#2a0610}
+.hud{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+.fb{margin-top:10px;font-weight:700}.ok-t{color:var(--ok)}.bad-t{color:var(--bad)}
+@media(max-width:560px){.opts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Latihan</h1>
+<p class="mute">Pilih jawaban yang benar. Pembahasan muncul setelah menjawab.</p>
+<div class="card" id="quiz"></div>
+<script>
+const $=s=>document.querySelector(s);
+const Q=[
+["12 pekerja menyelesaikan bangunan dalam 10 hari. Jika hanya 8 pekerja, berapa hari?",["12","15","18","6"],1,"k = 12 × 10 = 120; 120 ÷ 8 = 15 hari."],
+["Sepeda 15 km/jam menempuh jarak dalam 2 jam. Dengan 10 km/jam, berapa jam?",["1","1,5","3","4"],2,"k = 15 × 2 = 30; 30 ÷ 10 = 3 jam."],
+["Pakan 30 ayam cukup 12 hari. Jika ayam menjadi 40 ekor, pakan cukup berapa hari?",["9","16","10","8"],0,"k = 30 × 12 = 360; 360 ÷ 40 = 9 hari."],
+["Pasangan besaran yang berbanding terbalik adalah ...",["Jumlah buku dan harga total","Jumlah mesin dan waktu menyelesaikan pekerjaan","Berat beras dan harganya","Jumlah siswa dan banyak buku"],1,"Mesin bertambah, waktu berkurang, hasil kali tetap."],
+["5 keran mengisi bak dalam 30 menit. Dengan 3 keran, berapa menit?",["18","40","50","60"],2,"k = 5 × 30 = 150; 150 ÷ 3 = 50 menit."]];
+let qi=0,qs=0,done=false;
+function quiz(){
+ if(qi>=Q.length){
+  $("#quiz").innerHTML=`<p class="big">Skormu: <b>${qs} / ${Q.length}</b>. ${qs>=4?"Hebat, kamu siap main game!":"Ulangi contoh soal, lalu coba lagi."}</p><button class="btn" id="qr">Ulangi latihan</button>`;
+  $("#qr").onclick=()=>{qi=0;qs=0;quiz()};return;
+ }
+ const q=Q[qi];done=false;
+ $("#quiz").innerHTML=`<div class="hud"><span>Soal ${qi+1} dari ${Q.length}</span><span>Skor: ${qs}</span></div><p class="big">${q[0]}</p><div class="opts">${q[1].map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div><div class="fb" id="fb"></div>`;
+ document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+  if(done)return;done=true;
+  const i=+b.dataset.i,ok=i==q[2];
+  if(ok)qs++;
+  b.classList.add(ok?"ok":"bad");
+  document.querySelectorAll(".opt")[q[2]].classList.add("ok");
+  $("#fb").innerHTML=`<span class="${ok?"ok-t":"bad-t"}">${ok?"Benar!":"Belum tepat."}</span> ${q[3]}<br><button class="btn" id="qn" style="margin-top:8px">${qi==Q.length-1?"Lihat skor":"Soal berikutnya"}</button>`;
+  $("#qn").onclick=()=>{qi++;quiz()};
+ });
+}
+quiz();
+</script>
+</body>
+</html>

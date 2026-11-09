@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Perbandingan Berbalik Nilai – Belajar 3D</title>
+<style>
+:root{--bg:#e9eff4;--card:#fff;--ink:#12263a;--mute:#4d6177;--steel:#2b4a6f;--yel:#f2b705;--ok:#1f8a4c;--bad:#c0392b;--line:#c9d6e2;--onyel:#12263a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b28;--card:#182a3d;--ink:#eaf1f8;--mute:#9db1c6;--steel:#7fb0e6;--line:#2c4560;--ok:#4cc380;--bad:#ff7b6b}}
+:root[data-theme="dark"]{--bg:#0f1b28;--card:#182a3d;--ink:#eaf1f8;--mute:#9db1c6;--steel:#7fb0e6;--line:#2c4560;--ok:#4cc380;--bad:#ff7b6b}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Trebuchet MS","Segoe UI",Verdana,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.7rem;line-height:1.2;margin:8px 0 4px;letter-spacing:-.01em}
+h2{font-size:1.2rem;margin:0 0 8px}
+p{margin:.4em 0}.sub{color:var(--mute);margin:0 0 12px}
+nav{display:flex;gap:6px;overflow-x:auto;margin:12px 0;padding-bottom:4px}
+nav button{flex:1;min-width:max-content;border:2px solid var(--line);background:var(--card);color:var(--ink);padding:10px 14px;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}
+nav button[aria-selected=true]{background:var(--yel);border-color:var(--yel);color:var(--onyel)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.formula{background:var(--bg);border-left:6px solid var(--yel);padding:10px 14px;border-radius:6px;font-weight:700;font-size:1.05rem;overflow-x:auto}
+#stage{height:300px;border-radius:12px;background:linear-gradient(var(--bg),var(--card));border:1px solid var(--line);cursor:grab;touch-action:none;position:relative;overflow:hidden}
+#stage:active{cursor:grabbing}#stage canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:10px;bottom:8px;font-size:.8rem;color:var(--mute)}
+.ctl{display:flex;align-items:center;gap:12px;margin:12px 0}.ctl input{flex:1;accent-color:var(--steel)}
+.read{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.read div{background:var(--bg);border-radius:10px;padding:8px}.read b{display:block;font-size:1.5rem;color:var(--steel)}
+table{width:100%;border-collapse:collapse;margin-top:10px;text-align:center}td,th{border:1px solid var(--line);padding:6px}tr.cur td{background:var(--yel);color:var(--onyel);font-weight:700}
+.btn{background:var(--steel);color:#fff;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#0f1b28}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0f1b28}}
+.steps{display:none;margin-top:8px;padding:10px 14px;background:var(--bg);border-radius:8px}.steps.on{display:block}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.opt{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px;font:inherit;font-weight:700;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--ok);color:#fff}.opt.bad{border-color:var(--bad);background:var(--bad);color:#fff}
+.fb{margin-top:8px;font-weight:700}.ok-t{color:var(--ok)}.bad-t{color:var(--bad)}
+.hud{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--yel);width:100%}
+.big{font-size:1.15rem;min-height:3.6em}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<h1>Perbandingan Berbalik Nilai</h1>
+<p class="sub">Putar model 3D, pahami konsepnya, lalu uji dirimu lewat latihan dan game.</p>
+<nav role="tablist" id="tabs"></nav>
+
+<section id="belajar" class="on">
+ <div class="card"><h2>Pengertian</h2>
+  <p>Dua besaran disebut <b>berbanding terbalik</b> jika ketika satu besaran bertambah, besaran lainnya berkurang, dan <b>hasil kali keduanya selalu tetap</b>.</p>
+  <div class="formula">x₁ × y₁ = x₂ × y₂ = k &nbsp;&nbsp;atau&nbsp;&nbsp; x₁ / x₂ = y₂ / y₁</div>
+  <p>Contoh: makin banyak pekerja, makin sedikit hari yang dibutuhkan. Makin cepat kendaraan, makin singkat waktu tempuhnya.</p></div>
+ <div class="card"><h2>Model 3D: Membangun Tembok</h2>
+  <p>Satu pekerjaan setara <b>24 kubus</b> (1 kubus = kerja 1 pekerja selama 1 hari). Geser jumlah pekerja, lalu lihat tinggi tumpukan, yaitu jumlah hari, berubah. Seret model untuk memutarnya.</p>
+  <div id="stage"><span class="hint">Seret untuk memutar</span></div>
+  <div class="ctl"><label for="sl">Pekerja</label><input id="sl" type="range" min="0" max="6" step="1" value="2"></div>
+  <div class="read"><div>Pekerja<b id="rn">4</b></div><div>Hari<b id="rd">6</b></div><div>Pekerja × Hari<b>24</b></div></div>
+  <table id="tbl"></table></div>
+ <div class="card"><h2>Penjelasan</h2>
+  <p>1. Pekerja menjadi <b>2 kali lipat</b> (4 → 8), hari menjadi <b>setengahnya</b> (6 → 3).</p>
+  <p>2. Hasil kali selalu sama (konstanta k = 24), jadi grafiknya melengkung turun, bukan lurus.</p>
+  <p>3. Beda dengan perbandingan senilai, yaitu kedua besaran sama-sama naik dan hasil <i>bagi</i>-nya yang tetap.</p>
+  <p>4. Langkah menyelesaikan soal: tentukan dua besaran, hitung k = x₁ × y₁, lalu y₂ = k ÷ x₂.</p></div>
+</section>
+
+<section id="contoh">
+ <div id="ex"></div>
+</section>
+
+<section id="latihan"><div class="card" id="quiz"></div></section>
+
+<section id="game"><div class="card" id="gm"></div></section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+/* Tabs */
+const T=[["belajar","Belajar"],["contoh","Contoh Soal"],["latihan","Latihan"],["game","Game"]];
+T.forEach(([id,l],i)=>{const b=document.createElement("button");b.textContent=l;b.setAttribute("role","tab");b.setAttribute("aria-selected",i==0);b.onclick=()=>{T.forEach(([x])=>$("#"+x).classList.toggle("on",x==id));[...$("#tabs").children].forEach(c=>c.setAttribute("aria-selected",c==b));if(id=="belajar")resize();if(id=="game"&&!G.run)gameHome();window.scrollTo(0,0)};$("#tabs").appendChild(b)});
+
+/* 3D */
+const NS=[1,2,3,4,6,8,12];let n=4,cur=null,tAnim=0,rotY=.6,rotX=.35,drag=false,px=0,py=0;
+const st=$("#stage"),reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+let R,S,C,grp;
+try{
+R=new THREE.WebGLRenderer({antialias:true,alpha:true});st.appendChild(R.domElement);
+S=new THREE.Scene();C=new THREE.PerspectiveCamera(40,1,.1,100);
+S.add(new THREE.AmbientLight(0xffffff,.7));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(5,10,7);S.add(dl);
+grp=new THREE.Group();S.add(grp);
+const box=new THREE.BoxGeometry(.92,.92,.92),edg=new THREE.EdgesGeometry(box);
+const mY=new THREE.MeshLambertMaterial({color:0xf2b705}),mB=new THREE.MeshLambertMaterial({color:0x2b6cb0}),lm=new THREE.LineBasicMaterial({color:0x12263a});
+function build(){while(grp.children.length)grp.remove(grp.children[0]);const h=24/n,sp=1.15;
+ for(let c=0;c<n;c++)for(let r=0;r<h;r++){const m=new THREE.Mesh(box,c%2?mB:mY);m.position.set((c-(n-1)/2)*sp,r+.5-h/2,0);m.add(new THREE.LineSegments(edg,lm));grp.add(m)}
+ const sc=Math.max(n*sp,h)/ 1;C.position.set(0,0,Math.max(14,sc*1.5+4));C.lookAt(0,0,0);tAnim=1}
+function resize(){const w=st.clientWidth,h=st.clientHeight;R.setSize(w,h);R.setPixelRatio(Math.min(devicePixelRatio,2));C.aspect=w/h;C.updateProjectionMatrix()}
+function loop(){requestAnimationFrame(loop);if(!drag&&!reduce)rotY+=.004;grp.rotation.y=rotY;grp.rotation.x=rotX;
+ if(tAnim>0){tAnim=Math.max(0,tAnim-.06);const s=1-tAnim*tAnim*.5;grp.scale.set(s,s,s)}else grp.scale.set(1,1,1);R.render(S,C)}
+st.addEventListener("pointerdown",e=>{drag=true;px=e.clientX;py=e.clientY;st.setPointerCapture(e.pointerId)});
+st.addEventListener("pointermove",e=>{if(!drag)return;rotY+=(e.clientX-px)*.01;rotX=Math.max(-1.2,Math.min(1.2,rotX+(e.clientY-py)*.01));px=e.clientX;py=e.clientY});
+st.addEventListener("pointerup",()=>drag=false);addEventListener("resize",resize);
+window.build=build;resize();build();loop();
+}catch(e){st.innerHTML='<p style="padding:16px">Peraga 3D tidak dapat dimuat di perangkat ini. Gunakan tabel di bawah untuk belajar.</p>'}
+function upd(){$("#rn").textContent=n;$("#rd").textContent=24/n;
+ $("#tbl").innerHTML="<tr><th>Pekerja</th>"+NS.map(x=>`<td class="${x==n?"cur":""}">${x}</td>`).join("")+"</tr><tr><th>Hari</th>"+NS.map(x=>`<td class="${x==n?"cur":""}">${24/x}</td>`).join("")+"</tr>"}
+$("#sl").oninput=e=>{n=NS[e.target.value];upd();if(window.build)build()};upd();
+
+/* Contoh soal */
+const EX=[
+["Soal 1: Pekerja dan hari","Sebuah proyek diselesaikan 6 pekerja dalam 20 hari. Jika dikerjakan 8 pekerja, berapa hari proyek selesai?",
+"Diketahui: 6 pekerja → 20 hari.<br>Konstanta k = 6 × 20 = 120.<br>Untuk 8 pekerja: hari = 120 ÷ 8 = <b>15 hari</b>."],
+["Soal 2: Kecepatan dan waktu","Mobil berkecepatan 60 km/jam tiba dalam 4 jam. Jika kecepatan 80 km/jam, berapa jam waktu tempuhnya?",
+"Jarak sama, jadi k = 60 × 4 = 240.<br>Waktu = 240 ÷ 80 = <b>3 jam</b>.<br>Kecepatan naik, waktu turun, itulah berbalik nilai."],
+["Soal 3: Persediaan pakan","Pakan 40 ekor sapi cukup untuk 15 hari. Jika ada tambahan 20 ekor sapi, pakan cukup untuk berapa hari?",
+"Sapi sekarang: 40 + 20 = 60 ekor.<br>k = 40 × 15 = 600.<br>Hari = 600 ÷ 60 = <b>10 hari</b>.<br>Awas: jangan memakai 20 ekor sebagai jumlah akhir."]];
+$("#ex").innerHTML=EX.map((e,i)=>`<div class="card"><h2>${e[0]}</h2><p>${e[1]}</p><button class="btn" data-i="${i}">Lihat langkah</button><div class="steps" id="s${i}">${e[2]}</div></div>`).join("");
+document.querySelectorAll("#ex .btn").forEach(b=>b.onclick=()=>{const s=$("#s"+b.dataset.i);s.classList.toggle("on");b.textContent=s.classList.contains("on")?"Sembunyikan":"Lihat langkah"});
+
+/* Latihan */
+const Q=[
+["12 pekerja menyelesaikan bangunan dalam 10 hari. Jika hanya 8 pekerja, berapa hari?",["12","15","18","6"],1,"k = 12 × 10 = 120; 120 ÷ 8 = 15 hari."],
+["Sepeda 15 km/jam menempuh jarak dalam 2 jam. Dengan 10 km/jam, berapa jam?",["1","1,5","3","4"],2,"k = 15 × 2 = 30; 30 ÷ 10 = 3 jam."],
+["Pakan 30 ayam cukup 12 hari. Jika ayam menjadi 40 ekor, pakan cukup berapa hari?",["9","16","10","8"],0,"k = 30 × 12 = 360; 360 ÷ 40 = 9 hari."],
+["Pasangan besaran yang berbanding terbalik adalah ...",["Jumlah buku dan harga total","Jumlah mesin dan waktu menyelesaikan pekerjaan","Berat beras dan harganya","Jumlah siswa dan banyak buku"],1,"Mesin bertambah, waktu berkurang, dan hasil kalinya tetap."],
+["5 keran mengisi bak dalam 30 menit. Dengan 3 keran, berapa menit?",["18","40","50","60"],2,"k = 5 × 30 = 150; 150 ÷ 3 = 50 menit."]];
+let qi=0,qs=0,done=false;
+function quiz(){if(qi>=Q.length){$("#quiz").innerHTML=`<h2>Selesai!</h2><p class="big">Skormu: <b>${qs} / ${Q.length}</b>. ${qs>=4?"Hebat, kamu siap main game.":"Ulangi contoh soal, lalu coba lagi."}</p><button class="btn" id="qr">Ulangi latihan</button>`;$("#qr").onclick=()=>{qi=0;qs=0;quiz()};return}
+ const q=Q[qi];done=false;$("#quiz").innerHTML=`<div class="hud"><span>Soal ${qi+1} dari ${Q.length}</span><span>Skor: ${qs}</span></div><p class="big">${q[0]}</p><div class="opts">${q[1].map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div><div class="fb" id="fb"></div>`;
+ document.querySelectorAll("#quiz .opt").forEach(b=>b.onclick=()=>{if(done)return;done=true;const i=+b.dataset.i,ok=i==q[2];if(ok)qs++;b.classList.add(ok?"ok":"bad");document.querySelectorAll("#quiz .opt")[q[2]].classList.add("ok");
+  $("#fb").innerHTML=`<span class="${ok?"ok-t":"bad-t"}">${ok?"Benar!":"Belum tepat."}</span> ${q[3]}<br><button class="btn" id="nx" style="margin-top:8px">${qi==Q.length-1?"Lihat skor":"Soal berikutnya"}</button>`;$("#nx").onclick=()=>{qi++;quiz()}})}
+quiz();
+
+/* Game */
+const SC=[["pekerja","hari","Sebuah proyek selesai oleh"],["keran","menit","Sebuah bak terisi penuh oleh"],["mesin","jam","Sebuah pesanan selesai oleh"],["ekor sapi","hari","Persediaan pakan cukup untuk"]];
+const G={run:false,score:0,lives:3,streak:0,best:0,ans:0,end:0,tm:null,lock:false,round:0};const DUR=14000;
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function gameHome(){clearInterval(G.tm);G.run=false;$("#gm").innerHTML=`<h2>Tukang Cepat</h2><p>Jawab secepat mungkin! Kamu punya 3 nyawa. Jawaban cepat dapat bonus, jawaban benar beruntun menambah poin. Soal makin sulit tiap 5 ronde.</p><p>Skor terbaik: <b>${G.best}</b></p><button class="btn" id="go">Mulai game</button>`;$("#go").onclick=start}
+function start(){G.run=true;G.score=0;G.lives=3;G.streak=0;G.round=0;next()}
+function gen(){const lv=Math.min(2,Math.floor(G.round/5)),ks=lv==0?[12,24]:lv==1?[24,36,48]:[48,60,72,120];const k=rnd(ks);
+ const dv=[2,3,4,5,6,8,9,10,12,15].filter(x=>k%x==0);let a=rnd(dv),b=rnd(dv);while(b==a)b=rnd(dv);const s=rnd(SC),d1=k/a,ans=k/b;
+ const set=new Set([ans]);const wrong=Math.round(d1*b/a);if(wrong>0)set.add(wrong);[ans+1,ans-1,ans+2,ans*2,d1].forEach(v=>{if(v>0&&set.size<4)set.add(v)});let z=3;while(set.size<4)set.add(ans+z++);
+ const t=`${s[2]} ${a} ${s[0]} dalam ${d1} ${s[1]}. Jika ada ${b} ${s[0]}, berapa ${s[1]}?`;return{t,ans,opts:[...set].sort(()=>Math.random()-.5)}}
+function next(){if(G.lives<=0){G.run=false;clearInterval(G.tm);G.best=Math.max(G.best,G.score);$("#gm").innerHTML=`<h2>Permainan selesai</h2><p class="big">Skor akhir: <b>${G.score}</b><br>Skor terbaik: <b>${G.best}</b></p><button class="btn" id="go">Main lagi</button>`;$("#go").onclick=start;return}
+ const q=gen();G.ans=q.ans;G.lock=false;G.round++;G.end=Date.now()+DUR;
+ $("#gm").innerHTML=`<div class="hud"><span>Skor: ${G.score}</span><span>Beruntun: ${G.streak}</span><span>Nyawa: ${"❤️".repeat(G.lives)||"-"}</span></div><div class="bar"><i id="tb"></i></div><p class="big">${q.t}</p><div class="opts">${q.opts.map(o=>`<button class="opt" data-v="${o}">${o}</button>`).join("")}</div><div class="fb" id="gf"></div>`;
+ document.querySelectorAll("#gm .opt").forEach(b=>b.onclick=()=>pick(+b.dataset.v,b));
+ clearInterval(G.tm);G.tm=setInterval(()=>{const l=G.end-Date.now();const el=$("#tb");if(el)el.style.width=Math.max(0,l/DUR*100)+"%";if(l<=0){clearInterval(G.tm);pick(null)}},100)}
+function pick(v,b){if(G.lock)return;G.lock=true;clearInterval(G.tm);const ok=v===G.ans;
+ document.querySelectorAll("#gm .opt").forEach(x=>{if(+x.dataset.v===G.ans)x.classList.add("ok")});
+ if(ok){const bonus=Math.round(Math.max(0,G.end-Date.now())/1000);G.streak++;const p=10+bonus+G.streak*2;G.score+=p;$("#gf").innerHTML=`<span class="ok-t">Benar! +${p} poin</span>`}
+ else{if(b)b.classList.add("bad");G.lives--;G.streak=0;$("#gf").innerHTML=`<span class="bad-t">${v===null?"Waktu habis.":"Salah."}</span> Jawaban: ${G.ans} (ingat: hasil kali tetap).`}
+ setTimeout(next,1300)}
+</script>
+</body>
+</html>
