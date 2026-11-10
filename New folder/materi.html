@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Materi Skala dan Peta</title><link rel="stylesheet" href="gaya.css">
+<style>
+html,body{height:100%;overflow:hidden}body{padding:0}
+#prog{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,#b8862b,#e8c46a,#fff1c2);transition:width .4s;z-index:5}
+.sl{position:absolute;inset:0;padding:28px 24px 84px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateX(40px);transition:opacity .45s,transform .45s,visibility .45s}
+.sl.on{opacity:1;visibility:visible;transform:none}.sl.pv{transform:translateX(-40px)}
+.in{max-width:880px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center}
+h1{font-size:clamp(2.2rem,7vw,4rem)}
+#stage{height:clamp(200px,38vh,320px);border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.28);cursor:grab;touch-action:none;position:relative;overflow:hidden}
+#stage canvas{display:block;width:100%;height:100%}
+.ctl{display:flex;gap:10px;align-items:center;margin:8px 0}.ctl label{min-width:92px}.ctl input{flex:1;accent-color:var(--gold)}
+.read{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.read div{background:rgba(0,0,0,.25);border-radius:12px;padding:6px;font-size:.85rem}.read b{display:block;font:700 1.25rem Georgia,serif;color:var(--gold)}
+#nav{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 12px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(10,6,24,.92) 55%);z-index:5}
+.arr{width:46px;height:46px;border-radius:50%;border:1px solid var(--gold);background:rgba(255,255,255,.07);color:var(--gold);font-size:1.3rem;cursor:pointer}.arr:disabled{opacity:.3}
+#dots{display:flex;gap:8px}#dots button{width:12px;height:12px;border-radius:50%;border:1px solid var(--gold);background:transparent;padding:0;cursor:pointer}#dots button[aria-current=true]{background:var(--gold);width:28px;border-radius:7px}
+#cnt{color:var(--mute);font-size:.85rem;min-width:44px;text-align:center}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div id="prog"></div>
+<section class="sl"><div class="in"><p class="mute">Matematika · Perbandingan</p><h1>Skala dan Peta</h1><p class="big mute">Bagaimana jarak 1 cm di peta bisa berarti berkilo-kilometer di dunia nyata? Pelajari lewat model 3D, contoh, latihan, dan game petualangan.</p><div><button class="btn" onclick="go(1)">Mulai presentasi</button></div><p class="mute" style="font-size:.85rem;margin-top:16px">Navigasi: tombol panah, titik di bawah, keyboard ← →, atau geser layar.</p></div></section>
+<section class="sl"><div class="in"><h2>Pengertian</h2><div class="card"><p><b>Skala</b> adalah perbandingan antara jarak pada peta (atau gambar) dengan jarak sebenarnya di lapangan.</p><div class="formula">Skala = Jarak pada peta : Jarak sebenarnya</div><p>Skala <b>1 : 100.000</b> artinya <b>1 cm</b> di peta mewakili <b>100.000 cm</b> (= 1 km) di dunia nyata.</p><p class="mute">Skala juga dipakai pada denah, maket, dan model bangunan.</p></div></div></section>
+<section class="sl"><div class="in"><h2>Rumus dan Konversi</h2><div class="card"><div class="formula">JS = JP × bilangan skala<br>JP = JS ÷ bilangan skala<br>Skala = JP : JS</div><p>JP = jarak pada peta, JS = jarak sebenarnya (satuan sama, misalnya cm).</p><div class="formula">1 km = 1.000 m = 100.000 cm</div><p class="mute">Tips: ubah dulu semua jarak ke cm sebelum menghitung.</p></div></div></section>
+<section class="sl"><div class="in"><h2>Model 3D: Peta dan Penggaris</h2><p class="mute">Geser jarak di peta (penggaris dalam cm) dan pilih skala. Jarak sebenarnya dihitung langsung. Seret model untuk memutar.</p>
+<div id="stage"></div>
+<div class="ctl"><label for="d">Jarak peta</label><input id="d" type="range" min="1" max="10" value="4"></div>
+<div class="ctl"><label for="k">Skala</label><input id="k" type="range" min="0" max="3" value="1"></div>
+<div class="read"><div>Jarak di peta<b id="rd"></b></div><div>Skala<b id="rk"></b></div><div>Jarak sebenarnya<b id="rs"></b></div></div><p class="mute" id="st" style="margin-top:6px"></p></div></section>
+<section class="sl"><div class="in"><h2>Langkah Menyelesaikan Soal</h2><div class="card"><p>1. Tulis yang diketahui: JP, JS, atau skala.</p><p>2. Samakan satuan ke <b>cm</b> (1 km = 100.000 cm).</p><p>3. Pilih rumus: cari JS (kali), cari JP (bagi), atau cari skala (bandingkan).</p><p>4. Ubah hasil ke satuan yang diminta soal.</p><p class="mute">Lanjut ke menu <b>Contoh Soal</b>, <b>Latihan</b>, dan <b>Game Petualangan</b>.</p></div></div></section>
+<div id="nav"><button class="arr" id="pv" aria-label="Sebelumnya">‹</button><div id="dots"></div><span id="cnt"></span><button class="arr" id="nx" aria-label="Berikutnya">›</button></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),SL=[...document.querySelectorAll(".sl")],N=SL.length;let ci=-1;
+SL.forEach((_,i)=>{const b=document.createElement("button");b.setAttribute("aria-label","Slide "+(i+1));b.onclick=()=>go(i);$("#dots").appendChild(b)});
+function go(i){i=Math.max(0,Math.min(N-1,i));if(i===ci)return;SL.forEach((s,k)=>{s.classList.toggle("on",k===i);s.classList.toggle("pv",k<i)});ci=i;[...$("#dots").children].forEach((d,k)=>d.setAttribute("aria-current",k===i));$("#cnt").textContent=(i+1)+" / "+N;$("#prog").style.width=(i+1)/N*100+"%";$("#pv").disabled=i==0;$("#nx").disabled=i==N-1;SL[i].scrollTop=0;resize()}
+$("#pv").onclick=()=>go(ci-1);$("#nx").onclick=()=>go(ci+1);
+addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.key==="ArrowRight")go(ci+1);if(e.key==="ArrowLeft")go(ci-1)});
+let sx=null;document.body.addEventListener("touchstart",e=>{sx=e.target.closest("#stage,input")?null:e.touches[0].clientX},{passive:true});
+document.body.addEventListener("touchend",e=>{if(sx===null)return;const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>70)go(ci+(d<0?1:-1));sx=null});
+/* 3D */
+const SK=[50000,100000,250000,500000],fm=n=>(+n.toFixed(2)).toLocaleString("id-ID"),st=$("#stage");
+let R,S,C,G,pinB,line,rotY=0,drag=false,px=0,reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
+const M=c=>new THREE.MeshLambertMaterial({color:c}),Bx=(w,h,d)=>new THREE.BoxGeometry(w,h,d);
+function mk(g,c,x,y,z,p){const m=new THREE.Mesh(g,M(c));m.position.set(x,y,z);(p||G).add(m);return m}
+function resize(){if(!R||!st.clientWidth)return;R.setPixelRatio(Math.min(devicePixelRatio,2));R.setSize(st.clientWidth,st.clientHeight);C.aspect=st.clientWidth/st.clientHeight;C.updateProjectionMatrix()}
+try{
+R=new THREE.WebGLRenderer({antialias:true,alpha:true});st.appendChild(R.domElement);S=new THREE.Scene();C=new THREE.PerspectiveCamera(40,1,.1,100);C.position.set(0,0,17);
+S.add(new THREE.AmbientLight(0xffffff,.8));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(5,10,8);S.add(dl);
+G=new THREE.Group();G.rotation.x=.6;S.add(G);
+mk(Bx(13,.3,7),0x6cc04a,0,-.15,0);mk(Bx(13,.02,.9),0x8a8f98,0,.01,-2);
+[[-4,-2.5],[1,-2.8],[4.5,-1.5],[5.5,2]].forEach(([x,z])=>{mk(new THREE.CylinderGeometry(.1,.14,.7,8),0x7a4a21,x,.35,z);mk(new THREE.ConeGeometry(.55,1.2,10),0x2e9e4f,x,1.2,z)});
+mk(Bx(10.2,.06,.7),0xe8c46a,0,.03,1.8);
+for(let i=0;i<=10;i++)mk(Bx(.05,.1,i%5?.7:.95),0x1a0b3a,-5+i,.06,1.8);
+const pin=(x,c)=>{const g=new THREE.Group();g.position.set(x,0,0);G.add(g);const cn=mk(new THREE.ConeGeometry(.35,1,10),c,0,.5,0,g);cn.rotation.x=Math.PI;mk(new THREE.SphereGeometry(.38,12,12),c,0,1.2,0,g);return g};
+pin(-5,0xe53935);pinB=pin(-1,0x3b82f6);line=mk(Bx(1,.08,.14),0x1a0b3a,-3,.06,0);
+st.addEventListener("pointerdown",e=>{drag=true;px=e.clientX;st.setPointerCapture(e.pointerId)});
+st.addEventListener("pointermove",e=>{if(drag){rotY+=(e.clientX-px)*.01;px=e.clientX}});st.addEventListener("pointerup",()=>drag=false);
+addEventListener("resize",resize);
+(function loop(){requestAnimationFrame(loop);if(!drag&&!reduce)rotY=Math.max(-1.1,Math.min(1.1,rotY+Math.sin(Date.now()/1500)*.0025));G.rotation.y=rotY;if(st.clientWidth)R.render(S,C)})();
+}catch(e){st.innerHTML='<p style="padding:16px">Peraga 3D tidak dapat dimuat. Gunakan angka di bawah.</p>'}
+function upd(){const d=+$("#d").value,s=SK[+$("#k").value],cm=d*s,km=cm/1e5;
+ if(pinB){pinB.position.x=-5+d;line.scale.x=d;line.position.x=-5+d/2}
+ $("#rd").textContent=d+" cm";$("#rk").textContent="1 : "+fm(s);$("#rs").textContent=fm(km)+" km";
+ $("#st").innerHTML=`${d} cm × ${fm(s)} = ${fm(cm)} cm = <b>${fm(km)} km</b>`}
+$("#d").oninput=upd;$("#k").oninput=upd;upd();go(0);
+</script></body></html>

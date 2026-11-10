@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contoh Soal Skala</title><link rel="stylesheet" href="gaya.css"></head><body>
+<h1>Contoh Soal</h1><p class="mute">Coba hitung sendiri, lalu buka langkahnya.</p><div id="ex"></div>
+<script>
+const EX=[
+["Mencari jarak sebenarnya","Jarak dua kota pada peta 6 cm. Skala peta 1 : 200.000. Berapa jarak sebenarnya?","JP = 6 cm, skala = 1 : 200.000.<br>JS = JP × skala = 6 × 200.000 = 1.200.000 cm.<br>1.200.000 cm ÷ 100.000 = <b>12 km</b>."],
+["Mencari skala","Jarak dua desa 15 km. Pada peta jaraknya 3 cm. Berapa skala peta?","JS = 15 km = 1.500.000 cm.<br>Skala = JP : JS = 3 : 1.500.000 = <b>1 : 500.000</b>."],
+["Mencari jarak pada peta","Jarak sebenarnya 8 km. Skala peta 1 : 50.000. Berapa jarak pada peta?","JS = 8 km = 800.000 cm.<br>JP = JS ÷ skala = 800.000 ÷ 50.000 = <b>16 cm</b>."],
+["Maket bangunan","Gedung setinggi 60 m dibuat maket berskala 1 : 200. Berapa tinggi maket?","60 m = 6.000 cm.<br>Tinggi maket = 6.000 ÷ 200 = <b>30 cm</b>."]];
+document.getElementById("ex").innerHTML=EX.map((e,i)=>`<div class="card"><h2>Soal ${i+1}: ${e[0]}</h2><p class="big">${e[1]}</p><button class="btn" data-i="${i}">Lihat langkah</button><div class="steps" id="s${i}">${e[2]}</div></div>`).join("");
+document.querySelectorAll(".btn").forEach(b=>b.onclick=()=>{const s=document.getElementById("s"+b.dataset.i);s.classList.toggle("on");b.textContent=s.classList.contains("on")?"Sembunyikan":"Lihat langkah"});
+</script></body></html>

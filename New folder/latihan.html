@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Latihan Skala</title><link rel="stylesheet" href="gaya.css"></head><body>
+<h1>Latihan</h1><p class="mute">Pilih jawaban yang benar. Pembahasan muncul setelah menjawab.</p><div class="card" id="quiz"></div>
+<script>
+const $=s=>document.querySelector(s);
+const Q=[
+["Jarak dua kota pada peta 5 cm, skala 1 : 100.000. Berapa jarak sebenarnya?",["500 m","5 km","50 km","0,5 km"],1,"5 × 100.000 = 500.000 cm = 5 km."],
+["Jarak sebenarnya 20 km, skala 1 : 400.000. Berapa jarak pada peta?",["2,5 cm","5 cm","8 cm","50 cm"],1,"20 km = 2.000.000 cm; 2.000.000 ÷ 400.000 = 5 cm."],
+["Jarak pada peta 4 cm, jarak sebenarnya 20 km. Berapa skalanya?",["1 : 50.000","1 : 200.000","1 : 500.000","1 : 5.000"],2,"20 km = 2.000.000 cm; 4 : 2.000.000 = 1 : 500.000."],
+["Maket gedung tingginya 25 cm dengan skala 1 : 200. Tinggi gedung sebenarnya?",["5 m","25 m","50 m","500 m"],2,"25 × 200 = 5.000 cm = 50 m."],
+["Skala 1 : 250.000 artinya ...",["1 cm di peta = 250 m","1 cm di peta = 2,5 km","1 cm di peta = 25 km","1 m di peta = 250 m"],1,"250.000 cm = 2.500 m = 2,5 km."]];
+let qi=0,qs=0,done=false;
+function quiz(){
+ if(qi>=Q.length){$("#quiz").innerHTML=`<p class="big">Skormu: <b>${qs} / ${Q.length}</b>. ${qs>=4?"Hebat, kamu siap main game!":"Ulangi contoh soal, lalu coba lagi."}</p><button class="btn" id="qr">Ulangi latihan</button>`;$("#qr").onclick=()=>{qi=0;qs=0;quiz()};return}
+ const q=Q[qi];done=false;
+ $("#quiz").innerHTML=`<div class="hud"><span>Soal ${qi+1} dari ${Q.length}</span><span>Skor: ${qs}</span></div><p class="big">${q[0]}</p><div class="opts">${q[1].map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div><div class="fb" id="fb"></div>`;
+ document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(done)return;done=true;const ok=+b.dataset.i==q[2];if(ok)qs++;b.classList.add(ok?"ok":"bad");document.querySelectorAll(".opt")[q[2]].classList.add("ok");
+  $("#fb").innerHTML=`<span class="${ok?"ok-t":"bad-t"}">${ok?"Benar!":"Belum tepat."}</span> ${q[3]}<br><button class="btn" id="qn" style="margin-top:8px">${qi==Q.length-1?"Lihat skor":"Soal berikutnya"}</button>`;$("#qn").onclick=()=>{qi++;quiz()}})}
+quiz();
+</script></body></html>

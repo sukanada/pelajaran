@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Skala dan Peta</title>
+<style>
+:root{--gold:#e8c46a;--mute:#c4b5e0;--line:rgba(232,196,106,.35);--ex:#4a1f6e;--exg:#8a5f12;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{color:#f6f0ff;font:16px/1.5 "Trebuchet MS","Segoe UI",Verdana,sans-serif;background:linear-gradient(135deg,#0a0618,#1a0b3a 50%,#2a0f4d)}
+#app{display:flex;height:100vh;height:100dvh}
+main{flex:1;min-width:0;order:2}iframe{display:block;width:100%;height:100%;border:0}
+aside{order:1;width:260px;flex-shrink:0;padding:14px 18px 18px 14px;border-right:1px solid var(--line);background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px;overflow-y:auto;overflow-x:hidden;transition:width .3s;position:relative;z-index:2}
+#tg{align-self:flex-start;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--gold);font-size:1.3rem;cursor:pointer}
+aside h1{font:700 1.3rem/1.2 Georgia,serif;margin:6px 0 2px;background:linear-gradient(100deg,#fff1c2,#e8c46a 45%,#b8862b);-webkit-background-clip:text;background-clip:text;color:transparent}
+aside p{margin:0 0 10px;color:var(--mute);font-size:.85rem}
+nav{display:flex;flex-direction:column;gap:14px;padding:4px 6px 12px 0}
+nav button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;font-weight:700;color:#f6f0ff;cursor:pointer;white-space:nowrap;background:linear-gradient(145deg,#6a33a0,#3a1766);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),3px 3px 0 var(--ex),4px 4px 0 var(--ex),5px 5px 0 var(--ex),6px 6px 0 var(--ex),9px 11px 16px rgba(0,0,0,.5);transition:background .2s,box-shadow .2s,margin .2s}
+nav button:hover{border-color:var(--gold)}
+nav button:active{margin:3px -3px -3px 3px;box-shadow:1px 1px 0 var(--ex),2px 2px 0 var(--ex),4px 5px 8px rgba(0,0,0,.5)}
+nav button[aria-current=page]{color:#2a0f4d;border-color:transparent;background:linear-gradient(145deg,#fff1c2,#e8c46a,#b8862b);box-shadow:1px 1px 0 var(--exg),2px 2px 0 var(--exg),3px 3px 0 var(--exg),4px 4px 0 var(--exg),5px 5px 0 var(--exg),6px 6px 0 var(--exg),9px 11px 18px rgba(0,0,0,.55)}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}.ic,.lb{pointer-events:none}.ic{font-size:1.3rem}
+aside.mini{width:84px;padding:14px 10px}aside.mini h1,aside.mini p,aside.mini .lb{display:none}aside.mini nav button{justify-content:center}
+@media(max-width:760px){#app{flex-direction:column}main{order:1}aside,aside.mini{order:2;width:100%;border-right:0;border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));flex-direction:row;overflow-x:auto}#tg,aside h1,aside p{display:none}aside.mini .lb{display:inline}nav{flex-direction:row;gap:10px;width:100%;padding:2px 6px 8px 0}nav button,aside.mini nav button{flex:1;min-width:max-content;justify-content:center;padding:10px 12px;font-size:.85rem}}
+</style></head><body>
+<div id="app">
+<aside id="side"><button id="tg" type="button" aria-label="Buka atau tutup sidebar">☰</button><h1>Skala dan Peta</h1><p>Pilih menu untuk mulai belajar.</p><nav id="nav"></nav></aside>
+<main><iframe id="fr" title="Isi pembelajaran"></iframe></main>
+</div>
+<script>
+var MENU=[["materi","Materi 3D","🧊"],["contoh","Contoh Soal","📝"],["latihan","Latihan","✏️"],["game","Game Petualangan","🧭"]];
+var nav=document.getElementById("nav"),fr=document.getElementById("fr"),side=document.getElementById("side");
+MENU.forEach(function(m){var b=document.createElement("button");b.type="button";b.dataset.id=m[0];b.title=m[1];b.innerHTML='<span class="ic">'+m[2]+'</span><span class="lb">'+m[1]+'</span>';nav.appendChild(b)});
+nav.addEventListener("click",function(e){var b=e.target.closest("button[data-id]");if(b)pilih(b.dataset.id)});
+function pilih(id){fr.src=id+".html";Array.prototype.forEach.call(nav.children,function(b){b.removeAttribute("aria-current")});var a=nav.querySelector('[data-id="'+id+'"]');if(a)a.setAttribute("aria-current","page");try{history.replaceState(null,"","#"+id)}catch(e){}}
+document.getElementById("tg").addEventListener("click",function(){side.classList.toggle("mini")});
+var h=location.hash.slice(1);pilih(MENU.some(function(m){return m[0]===h})?h:"materi");
+</script></body></html>
